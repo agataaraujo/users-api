@@ -15,7 +15,7 @@ curl --location --request POST 'http://localhost:8080/users' \
     "name": "William",
     "nick": "Wil",
     "birth_date": "1980-12-10",
-    "stack": "teste"
+    "stack": ["Kotlin", "Node"]
 }'
 ```
 ## Atualizar Usuário
