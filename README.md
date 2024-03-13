@@ -19,7 +19,7 @@ curl --location --request POST 'http://localhost:8080/users' \
 }'
 ```
 
-## Parâmetros
+**Parâmetros**
 
 <table>
 	<thead>
@@ -74,7 +74,7 @@ curl --location --request PUT 'http://localhost:8080/users/1' \
 }'
 ```
 
-## Parâmetros
+**Parâmetros**
 
 <table>
 	<thead>
@@ -135,7 +135,7 @@ Endpoint para obter os detalhes de um usuário específico.
 **Request:**
 
 ```bash
-curl --location 'http://localhost:8080/users/1'
+curl --location 'http://localhost:8080/users/{{id}}'
 ```
 
 ## Deletar Usuário
@@ -145,6 +145,6 @@ Endpoint para deletar um usuário existente.
 **Request:**
 
 ```bash
-curl --location --request DELETE 'http://localhost:8080/users/1'
+curl --location --request DELETE 'http://localhost:8080/users/{{id}}'
 ```
 
