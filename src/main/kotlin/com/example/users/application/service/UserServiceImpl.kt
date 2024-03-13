@@ -41,6 +41,24 @@ class UserServiceImpl(private val repository: UserRepository) : UserService {
     }
 
     override fun update(id: Long, user: User): Optional<User> {
+        Assert.hasLength(user.name, "[name] não pode estar em branco!")
+
+        if (repository.existsByNameAndIdNot(user.name, id)) {
+            throw IllegalArgumentException("[name] deve ser único!")
+        }
+
+        Assert.isTrue(user.name.length <= 255, "[name] deve ter no máximo 255 caracteres!")
+
+        user.nick?.let {
+            Assert.isTrue(it.length <= 32, "[nick] deve ter no máximo 32 caracteres!")
+        }
+
+        try {
+            Assert.notNull(user.birth_date, "[birth_date] não pode ser nula!")
+        } catch (e: DateTimeParseException) {
+            throw IllegalArgumentException("[birth_date] não é uma data válida!")
+        }
+
         val optional = getById(id)
         if(optional.isEmpty) return Optional.empty<User>()
         return optional.map {
