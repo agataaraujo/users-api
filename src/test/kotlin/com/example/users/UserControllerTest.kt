@@ -1,7 +1,7 @@
 package com.example.users
 
-import com.example.users.model.User
-import com.example.users.repository.UserRepository
+import com.example.users.application.model.User
+import com.example.users.application.repository.UserRepository
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
@@ -29,16 +29,17 @@ class UserControllerTest {
     fun `test find all users`() {
 
         val parsedDate = LocalDate.parse("1980-12-10", DateTimeFormatter.ISO_DATE)
-        userRepository.save(User(nome = "William", apelido = "Wil", data_nascimento = parsedDate, lista_tecnologias = ""))
+        userRepository.save(User(name = "William", nick = "Wil", birth_date = parsedDate, stack = listOf("Java", "Node")))
 
         mockMvc.perform(MockMvcRequestBuilders.get("/users"))
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.jsonPath("\$").isArray)
             .andExpect(MockMvcResultMatchers.jsonPath("\$[0].id").isNumber)
-            .andExpect(MockMvcResultMatchers.jsonPath("\$[0].nome").isString)
-            .andExpect(MockMvcResultMatchers.jsonPath("\$[0].apelido").isString)
-            .andExpect(MockMvcResultMatchers.jsonPath("\$[0].data_nascimento").isString)
-            .andExpect(MockMvcResultMatchers.jsonPath("\$[0].lista_tecnologias").isString)
+            .andExpect(MockMvcResultMatchers.jsonPath("\$[0].name").isString)
+            .andExpect(MockMvcResultMatchers.jsonPath("\$[0].nick").isString)
+            .andExpect(MockMvcResultMatchers.jsonPath("\$[0].birth_date").isString)
+            .andExpect(MockMvcResultMatchers.jsonPath("\$[0].stack[0]").value("Java"))
+            .andExpect(MockMvcResultMatchers.jsonPath("\$[0].stack[1]").value("Node"))
             .andDo(MockMvcResultHandlers.print())
     }
 
@@ -46,15 +47,16 @@ class UserControllerTest {
     fun `test find user by id`() {
 
         val parsedDate = LocalDate.parse("1980-12-10", DateTimeFormatter.ISO_DATE)
-        val user = userRepository.save(User(nome = "William", apelido = "Wil", data_nascimento = parsedDate, lista_tecnologias = ""))
+        val user = userRepository.save(User(name = "William", nick = "Wil", birth_date = parsedDate, stack = listOf("Java", "Node")))
 
         mockMvc.perform(MockMvcRequestBuilders.get("/users/${user.id}"))
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.jsonPath("\$.id").value(user.id))
-            .andExpect(MockMvcResultMatchers.jsonPath("\$.nome").value(user.nome))
-            .andExpect(MockMvcResultMatchers.jsonPath("\$.apelido").value(user.apelido))
-            .andExpect(MockMvcResultMatchers.jsonPath("\$.data_nascimento").value(user.data_nascimento.toString()))
-            .andExpect(MockMvcResultMatchers.jsonPath("\$.lista_tecnologias").value(user.lista_tecnologias))
+            .andExpect(MockMvcResultMatchers.jsonPath("\$.name").value(user.name))
+            .andExpect(MockMvcResultMatchers.jsonPath("\$.nick").value(user.nick))
+            .andExpect(MockMvcResultMatchers.jsonPath("\$.birth_date").value(user.birth_date.toString()))
+            .andExpect(MockMvcResultMatchers.jsonPath("\$stack[0]").value("Java"))
+            .andExpect(MockMvcResultMatchers.jsonPath("\$stack[1]").value("Node"))
             .andDo(MockMvcResultHandlers.print())
     }
 
@@ -62,7 +64,7 @@ class UserControllerTest {
     fun `test create user`() {
 
         val parsedDate = LocalDate.parse("1980-12-10", DateTimeFormatter.ISO_DATE)
-        var user = User(nome = "William", apelido = "", data_nascimento = parsedDate, lista_tecnologias = "")
+        var user = User(name = "William", nick = "", birth_date = parsedDate, stack = listOf("Java", "Node"))
         val objectMapper = ObjectMapper().registerModule(JavaTimeModule())
         var json = objectMapper.writeValueAsString(user)
         userRepository.deleteAll()
@@ -72,10 +74,11 @@ class UserControllerTest {
             .content(json))
             .andExpect(MockMvcResultMatchers.status().isCreated)
             .andExpect(MockMvcResultMatchers.jsonPath("\$.id").isNumber)
-            .andExpect(MockMvcResultMatchers.jsonPath("\$.nome").value(user.nome))
-            .andExpect(MockMvcResultMatchers.jsonPath("\$.apelido").value(user.apelido))
-            .andExpect(MockMvcResultMatchers.jsonPath("\$.data_nascimento").value(parsedDate.toString()))
-            .andExpect(MockMvcResultMatchers.jsonPath("\$.lista_tecnologias").value(user.lista_tecnologias))
+            .andExpect(MockMvcResultMatchers.jsonPath("\$.name").value(user.name))
+            .andExpect(MockMvcResultMatchers.jsonPath("\$.nick").value(user.nick))
+            .andExpect(MockMvcResultMatchers.jsonPath("\$.birth_date").value(parsedDate.toString()))
+            .andExpect(MockMvcResultMatchers.jsonPath("\$stack[0]").value("Java"))
+            .andExpect(MockMvcResultMatchers.jsonPath("\$stack[1]").value("Node"))
             .andDo(MockMvcResultHandlers.print())
         Assertions.assertFalse(userRepository.findAll().isEmpty())
     }
@@ -85,7 +88,7 @@ class UserControllerTest {
 
         userRepository.deleteAll()
         val parsedDate = LocalDate.parse("1980-12-10", DateTimeFormatter.ISO_DATE)
-        var user = User(nome = "", apelido = "Wil", data_nascimento =parsedDate, lista_tecnologias = "")
+        var user = User(name = "", nick = "Wil", birth_date =parsedDate, stack = listOf("Java", "Node"))
         val objectMapper = ObjectMapper().registerModule(JavaTimeModule())
         var json = objectMapper.writeValueAsString(user)
         mockMvc.perform(MockMvcRequestBuilders.post("/users")
@@ -96,7 +99,7 @@ class UserControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("\$.statusCode").isNumber)
             .andExpect(MockMvcResultMatchers.jsonPath("\$.message").isString)
             .andExpect(MockMvcResultMatchers.jsonPath("\$.statusCode").value(400))
-            .andExpect(MockMvcResultMatchers.jsonPath("\$.message").value("[nome] não pode estar em branco!"))
+            .andExpect(MockMvcResultMatchers.jsonPath("\$.message").value("[name] não pode estar em branco!"))
             .andDo(MockMvcResultHandlers.print())
     }
 
@@ -105,8 +108,8 @@ class UserControllerTest {
 
         userRepository.deleteAll()
         val parsedDate = LocalDate.parse("1980-12-10", DateTimeFormatter.ISO_DATE)
-        userRepository.save(User(nome = "William", apelido = "Wil", data_nascimento = parsedDate, lista_tecnologias = ""))
-        var user = User(nome = "William", apelido = "Wil", data_nascimento = parsedDate, lista_tecnologias = "")
+        userRepository.save(User(name = "William", nick = "Wil", birth_date = parsedDate, stack = listOf("Java", "Node")))
+        var user = User(name = "William", nick = "Wil", birth_date = parsedDate, stack = listOf("Java", "Node"))
         val objectMapper = ObjectMapper().registerModule(JavaTimeModule())
         var json = objectMapper.writeValueAsString(user)
         mockMvc.perform(MockMvcRequestBuilders.post("/users")
@@ -117,7 +120,7 @@ class UserControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("\$.statusCode").isNumber)
             .andExpect(MockMvcResultMatchers.jsonPath("\$.message").isString)
             .andExpect(MockMvcResultMatchers.jsonPath("\$.statusCode").value(400))
-            .andExpect(MockMvcResultMatchers.jsonPath("\$.message").value("[nome] deve ser único!"))
+            .andExpect(MockMvcResultMatchers.jsonPath("\$.message").value("[name] deve ser único!"))
             .andDo(MockMvcResultHandlers.print())
     }
 
@@ -127,10 +130,10 @@ class UserControllerTest {
         userRepository.deleteAll()
         val parsedDate = LocalDate.parse("1980-12-10", DateTimeFormatter.ISO_DATE)
         var user = User(
-            nome = "William Junior Almeida Araujo Mendonça Gonçalves Silva Barmosa Ferreira Nogueira Santos Cunha da Penha Almeida Araujo Mendonça Gonçalves Silva Barmosa Ferreira Nogueira Santos Cunha da Penha Almeida Araujo Mendonça Gonçalves Silva Barmosa Ferreira Nogueira Santos Cunha da Penha ",
-            apelido = "Wil",
-            data_nascimento = parsedDate,
-            lista_tecnologias = ""
+            name = "William Junior Almeida Araujo Mendonça Gonçalves Silva Barmosa Ferreira Nogueira Santos Cunha da Penha Almeida Araujo Mendonça Gonçalves Silva Barmosa Ferreira Nogueira Santos Cunha da Penha Almeida Araujo Mendonça Gonçalves Silva Barmosa Ferreira Nogueira Santos Cunha da Penha ",
+            nick = "Wil",
+            birth_date = parsedDate,
+            stack = listOf("Java", "Node")
         )
         val objectMapper = ObjectMapper().registerModule(JavaTimeModule())
         var json = objectMapper.writeValueAsString(user)
@@ -142,7 +145,7 @@ class UserControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("\$.statusCode").isNumber)
             .andExpect(MockMvcResultMatchers.jsonPath("\$.message").isString)
             .andExpect(MockMvcResultMatchers.jsonPath("\$.statusCode").value(400))
-            .andExpect(MockMvcResultMatchers.jsonPath("\$.message").value("[nome] deve ter no máximo 255 caracteres!"))
+            .andExpect(MockMvcResultMatchers.jsonPath("\$.message").value("[name] deve ter no máximo 255 caracteres!"))
             .andDo(MockMvcResultHandlers.print())
     }
 
@@ -151,7 +154,7 @@ class UserControllerTest {
 
         userRepository.deleteAll()
         val parsedDate = LocalDate.parse("1980-12-10", DateTimeFormatter.ISO_DATE)
-        var user = User(nome = "William", apelido = "William Junior Almeida Araujo Mendonça", data_nascimento = parsedDate, lista_tecnologias = "")
+        var user = User(name = "William", nick = "William Junior Almeida", birth_date = parsedDate, stack = listOf("Java", "Node"))
         val objectMapper = ObjectMapper().registerModule(JavaTimeModule())
         var json = objectMapper.writeValueAsString(user)
         mockMvc.perform(MockMvcRequestBuilders.post("/users")
@@ -162,7 +165,7 @@ class UserControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("\$.statusCode").isNumber)
             .andExpect(MockMvcResultMatchers.jsonPath("\$.message").isString)
             .andExpect(MockMvcResultMatchers.jsonPath("\$.statusCode").value(400))
-            .andExpect(MockMvcResultMatchers.jsonPath("\$.message").value("[apelido] deve ter no máximo 32 caracteres!"))
+            .andExpect(MockMvcResultMatchers.jsonPath("\$.message").value("[nick] deve ter no máximo 32 caracteres!"))
             .andDo(MockMvcResultHandlers.print())
     }
 
@@ -171,8 +174,8 @@ class UserControllerTest {
 
         val parsedDate = LocalDate.parse("1980-12-10", DateTimeFormatter.ISO_DATE)
         var user = userRepository
-            .save(User(nome = "William", apelido = "Wil", data_nascimento = parsedDate, lista_tecnologias = ""))
-            .copy(nome = "Updated")
+            .save(User(name = "William", nick = "Wil", birth_date = parsedDate, stack = listOf("Java", "Node")))
+            .copy(name = "Updated")
         val objectMapper = ObjectMapper().registerModule(JavaTimeModule())
         var json = objectMapper.writeValueAsString(user)
         mockMvc.perform(MockMvcRequestBuilders.put("/users/${user.id}")
@@ -181,14 +184,15 @@ class UserControllerTest {
             .content(json))
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.jsonPath("\$.id").isNumber)
-            .andExpect(MockMvcResultMatchers.jsonPath("\$.nome").value(user.nome))
-            .andExpect(MockMvcResultMatchers.jsonPath("\$.apelido").value(user.apelido))
-            .andExpect(MockMvcResultMatchers.jsonPath("\$.data_nascimento").value(parsedDate.toString()))
-            .andExpect(MockMvcResultMatchers.jsonPath("\$.lista_tecnologias").value(user.lista_tecnologias))
+            .andExpect(MockMvcResultMatchers.jsonPath("\$.name").value(user.name))
+            .andExpect(MockMvcResultMatchers.jsonPath("\$.nick").value(user.nick))
+            .andExpect(MockMvcResultMatchers.jsonPath("\$.birth_date").value(parsedDate.toString()))
+            .andExpect(MockMvcResultMatchers.jsonPath("\$.stack[0]").value("Java"))
+            .andExpect(MockMvcResultMatchers.jsonPath("\$.stack[1]").value("Node"))
             .andDo(MockMvcResultHandlers.print())
         var findById = userRepository.findById(user.id!!)
         Assertions.assertTrue(findById.isPresent)
-        Assertions.assertEquals(user.nome, findById.get().nome)
+        Assertions.assertEquals(user.name, findById.get().name)
     }
 
     @Test
@@ -196,8 +200,8 @@ class UserControllerTest {
 
         val parsedDate = LocalDate.parse("1980-12-10", DateTimeFormatter.ISO_DATE)
         var user = userRepository
-            .save(User(nome = "William", apelido = "Wil", data_nascimento = parsedDate, lista_tecnologias = ""))
-            .copy(nome = "Updated")
+            .save(User(name = "William", nick = "Wil", birth_date = parsedDate, stack = listOf("Java", "Node")))
+            .copy(name = "Updated")
         val objectMapper = ObjectMapper().registerModule(JavaTimeModule())
         var json = objectMapper.writeValueAsString(user)
         mockMvc.perform(MockMvcRequestBuilders.delete("/users/${user.id}"))

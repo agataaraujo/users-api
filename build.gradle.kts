@@ -29,8 +29,7 @@ dependencies {
 	runtimeOnly("com.oracle.database.jdbc:ojdbc11")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.16.1")
-	implementation("org.springdoc:springdoc-openapi-ui:1.7.0")
-
+	implementation("jakarta.validation:jakarta.validation-api:3.0.2")
 }
 
 tasks.withType<KotlinCompile> {

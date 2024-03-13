@@ -1,6 +1,6 @@
-package com.example.users.service
+package com.example.users.application.service
 
-import com.example.users.model.User
+import com.example.users.application.model.User
 import java.util.*
 
 interface UserService {

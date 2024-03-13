@@ -1,7 +1,7 @@
-package com.example.users.controller
+package com.example.users.application.controller
 
-import com.example.users.model.User
-import com.example.users.service.UserService
+import com.example.users.application.model.User
+import com.example.users.application.service.UserService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*

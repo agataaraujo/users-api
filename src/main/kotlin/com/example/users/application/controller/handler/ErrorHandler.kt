@@ -1,4 +1,4 @@
-package com.example.users.controller.handler
+package com.example.users.application.controller.handler
 
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ControllerAdvice
